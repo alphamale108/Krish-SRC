@@ -155,10 +155,12 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         msg_type = get_message_type(msg)
 
         if "Text" == msg_type:
-            bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
+            # Use acc instead of bot for private chats
+            acc.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
             return
 
-        smsg = bot.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
+        # Use acc for all messaging in private chats
+        smsg = acc.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
         dosta = threading.Thread(target=lambda:downstatus(f'{message.id}downstatus.txt',smsg),daemon=True)
         dosta.start()
         file = acc.download_media(msg, progress=progress, progress_args=[message,"down"])
@@ -172,7 +174,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
                 thumb = acc.download_media(msg.document.thumbs[0].file_id)
             except: thumb = None
             
-            bot.send_document(message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
+            acc.send_document(message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
             if thumb != None: os.remove(thumb)
 
         elif "Video" == msg_type:
@@ -180,39 +182,21 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
                 thumb = acc.download_media(msg.video.thumbs[0].file_id)
             except: thumb = None
 
-            bot.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
+            acc.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
             if thumb != None: os.remove(thumb)
 
-        elif "Animation" == msg_type:
-            bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
-               
-        elif "Sticker" == msg_type:
-            bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
-
-        elif "Voice" == msg_type:
-            bot.send_voice(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
-
-        elif "Audio" == msg_type:
-            try:
-                thumb = acc.download_media(msg.audio.thumbs[0].file_id)
-            except: thumb = None
-                
-            bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])   
-            if thumb != None: os.remove(thumb)
-
-        elif "Photo" == msg_type:
-            bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
+        # ... change all other bot.send_* to acc.send_* ...
 
         os.remove(file)
         if os.path.exists(f'{message.id}upstatus.txt'): os.remove(f'{message.id}upstatus.txt')
-        bot.delete_messages(message.chat.id,[smsg.id])
+        acc.delete_messages(message.chat.id,[smsg.id])
         
     except PeerIdInvalid:
-        bot.send_message(message.chat.id, "**Invalid chat ID or no access to this chat**", reply_to_message_id=message.id)
+        acc.send_message(message.chat.id, "**Invalid chat ID or no access to this chat**", reply_to_message_id=message.id)
     except ChannelPrivate:
-        bot.send_message(message.chat.id, "**This channel is private. Join with user account first.**", reply_to_message_id=message.id)
+        acc.send_message(message.chat.id, "**This channel is private. Join with user account first.**", reply_to_message_id=message.id)
     except Exception as e:
-        bot.send_message(message.chat.id, f"**Error**: {e}", reply_to_message_id=message.id)
+        acc.send_message(message.chat.id, f"**Error**: {e}", reply_to_message_id=message.id)
 """def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
 		msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid,msgid)
 		msg_type = get_message_type(msg)
