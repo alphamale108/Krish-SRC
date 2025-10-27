@@ -305,6 +305,7 @@ def get_message_type(msg: pyrogram.types.messages_and_media.message.Message):
     else:
         return "Unknown"
 
+# Fixed USAGE string without syntax errors
 USAGE = """**FOR PUBLIC CHATS**
 
 __just send post/s link__
