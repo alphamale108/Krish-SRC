@@ -317,4 +317,4 @@ then send post/s link__
 
 **FOR BOT CHATS**
 
-__send link with '/b/', bot's username and message id__
+__send link with '/b/', bot's username and message id__ """
